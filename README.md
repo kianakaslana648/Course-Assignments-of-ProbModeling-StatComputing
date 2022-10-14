@@ -9,7 +9,7 @@ $\quad$• Continuous Distributions: Gaussian, Exponential, t-distribution, F di
 
 $\quad$• Stochastic Process: Markov Chain, Random Walk, Hidden Markov Process, etc.  
 
-$\quad$• Theories: Law of large numbers, Central Limit Theorem.  
+$\quad$• Probabilistic Theories: Law of large numbers, Central Limit Theorem.  
 
 $\quad$• Point Estimation: Maximum Likelihood, Method of Moments, etc.  
 
