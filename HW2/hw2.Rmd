@@ -1,0 +1,214 @@
+```{r}
+set.seed(225)
+```
+
+#Problem 1
+
+```{r Problem 1-(a)}
+mytoss<-function(p){
+  return(as.numeric(runif(1)<p))
+}
+myattempts = function(p){ counter <- 0
+while (mytoss(p) == 0){ counter <- counter + 1 }
+return(counter) }
+
+  p=0.1;
+  result1=replicate(10000,myattempts(p))
+  result2=rgeom(10000,p)
+  max1=max(result1)
+  max2=max(result2)
+  m_length=max(max1,max2)
+  record1=rep(1,m_length+1)
+  record2=rep(1,m_length+1)
+  for(i in 0:m_length){
+    record1[i+1]=mean(as.numeric(result1==i))
+  }
+  for(i in 0:m_length){
+    record2[i+1]=mean(as.numeric(result2==i))
+  }
+  record3=dgeom(0:m_length,p)
+  df1=data.frame(number=0:m_length,myattempts=record1,rgeom=record2,dgeom=record3)
+  df1[1:6,]
+```
+
+```{r Problem 1-(b)}
+  p=0.3;
+  result1=replicate(10000,myattempts(p))
+  result2=rgeom(10000,p)
+  v_mean=c(mean(result1),mean(result2))
+  v_sd=c(sd(result1),sd(result2))
+  v_median=c(median(result1),median(result2))
+  df2=data.frame(mean=v_mean,std=v_sd,median=v_median)
+  rownames(df2)<-c('myattempts','rgeom')
+  df2
+```
+
+```{r Problem 1-(c)}
+  library("ggplot2")
+  p=0.5;
+  result1=replicate(10000,myattempts(p))
+  result2=rgeom(10000,p)
+  df3=data.frame(myattempts=result1,rgeom=result2)
+  #df3[1:6,]
+  pic1=ggplot(df3)+
+    geom_histogram(aes(x=df3[,1]),color="blue",binwidth=1)+
+    geom_histogram(aes(x=df3[,2]),color="red",binwidth=1)+
+    xlab("Distributions")+ylab("Numbers")
+  pic1
+  pic2=ggplot(df3)+
+    geom_histogram(aes(x=df3[,2]),color="red",binwidth=1)+
+    geom_histogram(aes(x=df3[,1]),color="blue",binwidth=1)+
+    xlab("Distributions")+ylab("Numbers")
+  pic2
+```
+
+```{r Problem 1-(d)}
+  p=0.7;
+  result1=replicate(10000,myattempts(p))
+  result2=rgeom(10000,p)
+  df4=data.frame(data=c(result1,result2),kind=c(rep('myattempts',length(result1)),rep('rgeom',length(result2))))
+  pic=ggplot(df4)+
+    geom_boxplot(aes(kind,data,color=kind))
+  pic
+
+```
+
+#Problem 2
+```{r Problem 2}
+  generate<-function(){
+    x=0
+    for(i in 1:10){
+      x=runif(1,0,1+x)
+    }
+    return(x)
+  }
+  m_x<-replicate(10000,generate())
+  print(mean(m_x))
+  df=data.frame(results=m_x)
+  pic=ggplot(df)+
+    geom_histogram(aes(x=results),binwidth=0.05)
+  pic
+```
+
+#Problem 3
+```{r Problem 3-(a)}
+cat(pgamma(10,2.5,scale=5))
+```
+
+```{r Problem 3-(b)}
+cat(1-pgamma(5,2.5,scale=5))
+```
+
+```{r Problem 3-(c)}
+cat(pgamma(9,2.5,scale=5)-pgamma(7,2.5,scale=5))
+```
+
+```{r Problem 3-(d)}
+cat(qgamma(0.95,2.5,scale=5))
+```
+
+#Problem 4
+In the second case, two plots seem not to be having the same ending value.
+In the third case, two plots seem not to be having the same starting value.
+```{r Problem 4}
+drawpic<-function(n,p){
+  ave=n*p
+  std=sqrt(n*p*(1-p))
+  bino<-pbinom(0:n,n,p)
+  normal<-pnorm(seq(0,n,n/100),ave,std)
+  constant1=rep(1,n+1)
+  constant2=rep(1,101)
+  df1=data.frame(number=0:n,binomial=bino,constant=constant1)
+  df2=data.frame(x=seq(0,n,n/100),normal=normal,constant=constant2)
+  pic<-ggplot()+
+    geom_col(data=df1,aes(x=number,y=binomial,width=1.0))+
+    #geom_line(data=df1,aes(x=number,y=binomial,color=constant))+
+    geom_line(data=df2,aes(x=x,y=normal,color=constant))+
+    xlab('x')+ylab('F(x)')
+  return(pic)
+}
+
+pic1<-drawpic(40,0.5)
+pic1
+pic2<-drawpic(40,0.9)
+pic2
+pic3<-drawpic(10,0.5)
+pic3
+```
+
+#Problem 5
+The more numbers a sample has, the more close the picture is to a straight line.
+Usually bias occurs in the middle of the line, rather than the two vertexes of the line. That's because the fraction scale of the margins of the line is small and that leads to smaller bias.
+```{r Problem 5}
+normtest<-function(size){
+  x=rnorm(size,0,1);
+  pic=qqnorm(x);
+  return(pic)
+}
+pic1<-normtest(10)
+pic1
+pic2<-normtest(20)
+pic2
+pic3<-normtest(40)
+pic3
+pic4<-normtest(100)
+pic4
+pic5<-normtest(400)
+pic5
+```
+
+#Problem 6
+```{r Problem 6}
+num=100000
+n=100
+
+x=rexp(num,1)
+Fx=pexp(x,1)
+bin=(0:n)/n
+bin_Fx=rep(1,n)
+for(i in 1:n){
+  bin_Fx[i]=mean(Fx>=bin[i]&Fx<bin[i+1])
+}
+df=data.frame(x=(0:(n-1))/n+1/(2*n),Fx=bin_Fx)
+pic1<-ggplot(df)+
+  geom_col(aes(x=x,y=Fx))+
+  labs(title=bquote('Exponent'))
+pic1
+
+x=rnorm(num,0,1)
+Fx=pnorm(x,0,1)
+bin=(0:n)/n
+bin_Fx=rep(1,n)
+for(i in 1:n){
+  bin_Fx[i]=mean(Fx>=bin[i]&Fx<bin[i+1])
+}
+df=data.frame(x=(0:(n-1))/n+1/(2*n),Fx=bin_Fx)
+pic2<-ggplot(df)+
+  geom_col(aes(x=x,y=Fx))+
+  labs(title=bquote('Normal'))
+pic2
+
+x=rgamma(num,2.5,scale=5)
+Fx=pgamma(x,2.5,scale=5)
+bin=(0:n)/n
+bin_Fx=rep(1,n)
+for(i in 1:n){
+  bin_Fx[i]=mean(Fx>=bin[i]&Fx<bin[i+1])
+}
+df=data.frame(x=(0:(n-1))/n+1/(2*n),Fx=bin_Fx)
+pic3<-ggplot(df)+
+  geom_col(aes(x=x,y=Fx))+
+  labs(title=bquote('Gamma'))
+pic3
+```
+
+#Bonus Problem
+```{r Bonus Problem}
+alpha=0.3
+x1=rexp(10000,1)
+x2=rexp(10000,1)
+x=x1+x2
+x_alpha=x^alpha
+#cat(x1[1],x2[1],x[1],x_alpha[1])
+qqnorm(x_alpha)
+```

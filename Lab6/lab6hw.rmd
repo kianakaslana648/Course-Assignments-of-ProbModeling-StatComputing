@@ -1,0 +1,57 @@
+#Problem 1
+```{r Problem 1-(a)}
+Y = rnorm(100000,0,1)
+X = floor(Y)
+df=data.frame(X=X,Y=Y)
+head(df)
+```
+
+```{r Problem 1-(b)}
+aggdata_median <- aggregate(df,by=list(X),median)
+aggdata_median
+plot(aggdata_median$X,aggdata_median$Y,type='l',col='red')
+```
+
+```{r Problem 1-(c)}
+aggdata_sd <- aggregate(df,by=list(X),sd)
+aggdata_sd
+plot(aggdata_sd$Group.1,aggdata_sd$Y,type='l',col='red')
+```
+
+#Problem 2
+```{r Problem 2-(a)}
+df_2=data.frame(runif(10000,0,1),runif(10000,0,1))
+plot(df_2,pch=46)
+plot(df_2[(df_2[1]+df_2[2])<1,],pch=46)
+```
+
+Problem 2-(b)
+Points of (X,Y) lies uniformly in the triangle above. So f(x,y)=2 when x>=0 & y>=0 & x+y<1 and f(x,y)=0 otherwise. 
+
+```{r Problem 2-(c)}
+df_2_c=df_2[(df_2[1]+df_2[2])<1,]
+
+hist(df_2_c[,1],prob=T,breaks=seq(0,1,0.025))
+```
+
+```{r Problem 2-(d)}
+hist(df_2_c[,2],prob=T,breaks=seq(0,1,0.025))
+```
+Yes they are the same.
+
+#Problem 3
+
+(a)
+If we compute the integral of f(x,y) on the region of {0<y<1,0<x<2}, we have the result of 4. So C equals 1/4. In fact we first compute the integral of C(x+2y) on {0<x<2}, we have C(2+4y). Then we compute the integral of C(2+4y) on {0<y<1}, we have 4C. So C=1/4.
+
+(b)
+We compute the integral of f(X,Y) on the region of {0<y<1}. Then we have f(x)=(x+1)/4 on the region of {0<x<2} and f(x)=0 otherwise.
+
+(c)
+we compute the integral of f(X,Y) on the region of {0<X<2}. Then we have f_(y)=(2y+1)/2 on the region of {0<y<1} and f_(y)=0 otherwise.
+
+(d)
+We compute that g(y)=f(x,y)/f(x)=(x+2y)/(x+1) on the region of {0<y<1} and g(y)=0 otherwise.
+
+(e)
+We compute E(Y|X) as the integral of y(x+2y)/(x+1) on the region of {0<y<1}. Then we have E(Y|X)=(3x+4)/(6x+6)

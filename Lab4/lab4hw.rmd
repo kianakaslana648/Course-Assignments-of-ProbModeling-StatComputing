@@ -1,0 +1,103 @@
+#Problem 1
+Only distribution in (d) is uniform. Other distributions are all not uniform.
+```{r Problem 1-(a)}
+a=0
+b=1
+X_1=runif(10000,a,b)
+X_2=runif(10000,a,b)
+plot.ecdf(X_1+X_2)
+```
+
+```{r Problem 1-(b)}
+plot.ecdf(X_1*X_2)
+```
+
+```{r Problem 1-(c)}
+X_max=rep(1,10000)
+X_min=rep(1,10000)
+
+for(i in 1:10000){
+  X_max[i]=max(X_1[i],X_2[i])
+  X_min[i]=min(X_1[i],X_2[i])
+}
+plot.ecdf(X_max)
+plot.ecdf(X_min)
+```
+
+```{r Problem 1-(d)}
+plot.ecdf(1-X_1)
+```
+
+#Problem 2
+```{r Problem 2-(a)}
+a=4
+b=5
+mu=2
+sigma=3
+library("nortest")
+X=rnorm(10000,mu,sigma)
+Y=a*X+b
+ks.test(Y,"pnorm",a*mu+b,a*sigma)
+```
+
+```{r Problem 2-(b)}
+X_1=rnorm(10000,1,2)
+X_2=rnorm(10000,2,3)
+X_3=rnorm(10000,3,4)
+X_4=rnorm(10000,4,5)
+X=X_1+X_2+X_3+X_4
+ks.test(X,"pnorm",10,sqrt(54))
+```
+
+#Problem 3
+AD-test don't require specific parameters and KS does require. They give the different pvalue. But if the pvalue is no minor, the distribution is just kind of normal statistically. KS-test don't like dataset containing the same values. It deal with different continuous values.
+```{r Problem 3}
+library(datasets)
+library(dplyr)
+data("iris")
+
+head(iris)
+X=iris[iris['Species']=='setosa','Sepal.Width']
+
+ad.test(X)
+
+m=mean(X)
+std=sd(X)
+ks.test(X,"pnorm",m,std)
+```
+
+#Problem 4
+Proof:
+(a)
+P(X_min<x)=1-P(X_min>=x)=1-P(X_1>=x)*P(X_2>=x)...P(X_k>=x)
+=1-e^(-k lambda x)
+d(X_min<x)=k lambda e^(-k lambda x)
+
+(b)
+P(X_max<x)=P(X_1<x)*P(X_2<x)...P(X_k<x)
+=(1-e^(lambda x))^k
+
+(c)
+As we know, exponential distribution with lambda is a special case of gamma distribution with parameters of (lambda,1)
+And use the property of gamma distribution we have the distribution of x_sum be the gamma distribution with (lambda,k)
+
+In fact, only X_min is again exponentially distributed.
+```{r Problem 3-(a)}
+k=10
+X=rexp(k*10000,1)
+X=matrix(X,nrow=10000,ncol=k)
+X_min=apply(X,1,min)
+plot.ecdf(X_min)
+ks.test(X_min,k)
+```
+
+```{r Problem 3-(b)}
+X_max=apply(X,1,max)
+plot.ecdf(X_max)
+```
+
+```{r Problem 3-(c)}
+X_sum=apply(X,1,sum)
+plot.ecdf(X_sum)
+ks.test(X_sum,"pgamma",k,1)
+```

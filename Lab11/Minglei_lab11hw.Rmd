@@ -1,0 +1,90 @@
+```{r}
+library(rstudioapi)
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+```
+
+#Problem 1
+
+###(a)
+```{r}
+library(ISLR)
+head(Auto)
+pairs(Auto)
+```
+###(b)
+```{r}
+Auto_cleaned=subset(Auto, select = -c(name))
+cor(Auto_cleaned)
+```
+
+###(c)
+```{r}
+model1=lm(mpg~.,data=Auto_cleaned)
+summary(model1)
+```
+Comment:
+(1) Since p-value of F-statistic is low, there is a relationship between the predictors and the response.
+(2) Since variables of displacement, weight, year, origin have a rather low p-value for t-statistic, they are the statistically significant predictors.
+(3) When year increases or decreases by 1, the change of the response is 0.750773 or -0.750773.
+
+###(e)
+```{r}
+model2=lm(mpg~.+horsepower*origin, data=Auto_cleaned)
+summary(model2)
+```
+Comment: It seems that the interaction between horsepower and original is statistically significant.
+
+###(f)
+```{r}
+model3=lm(mpg~.-horsepower+log(horsepower),data=Auto_cleaned)
+summary(model3)
+```
+In this model, log(horsepower) seems to be statistically significant.
+```{r}
+model4=lm(mpg~.-horsepower+I(horsepower^2),data=Auto_cleaned)
+summary(model4)
+```
+In this model, horsepower^2 seems to be more significant than without transformation.
+
+```{r}
+model5=lm(mpg~.-horsepower+I(horsepower^0.5),data=Auto_cleaned)
+summary(model5)
+```
+In this model, horsepower^0.5 seems to be statistically significant.
+
+#Problem 2
+
+###(a)
+```{r}
+head(Carseats)
+model6=lm(Sales~Price+Urban+US, data=Carseats)
+```
+
+###(b)
+```{r}
+summary(model6)
+```
+Comment: 
+(1) When Price increases or decreases by x, the change of the response is -0.054459 x or 0.054459 x.
+(2) Urban equal to yes leads to Sales -0.021916.
+(3) US equal to yes leads to Sales +1.200573.
+
+###(c)
+Formula:
+$$Sales=13.043469-0.054459*Price+\begin{cases}0&Urban = No\\-0.021916&Urban=Yes\end{cases}+\begin{cases}0&US=No\\1.200573&US=Yes\end{cases}$$
+###(d)
+Since p-values of t-statistic of Price and USYes are extremely low, we can reject the mentioned null hypothesis.
+
+###(e)
+```{r}
+model7=lm(Sales~Price+US, data=Carseats)
+summary(model7)
+```
+
+###(f)
+According to the R-squared values, (a) and (e) fit the data not so well nor too bad.
+
+###(g)
+```{r}
+confint(model7)
+```

@@ -1,0 +1,192 @@
+#Problem 1
+###(a)
+```{r}
+pbinom(290,800,0.34) - pbinom(250,800,0.34)
+```
+###(b)
+#####(i)
+p=0.34
+#####(ii)
+mean=p=0.340, std=sqrt(np(1-p))=0.474
+#####(iii)
+that is a distribution with the same probabilities as binom(800,0.34) but with values divided by 800.
+#####(iv)
+```{r}
+library(ggplot2)
+N=100000
+n=800
+p=0.34
+X_1=rbinom(N,n,p)
+hist(X_1/n,breaks=30,prob=T,main="Sample Mean")
+lines(seq(0.25,0.40,by=0.001),dnorm(seq(0.25,0.40,by=0.001),p,sqrt(p*(1-p)/n)),type='l')
+
+hist(X_1,breaks=50,prob=T,main="Sample Count")
+lines(seq(220,320,by=1),dnorm(seq(220,320,by=1),n*p,sqrt(n*p*(1-p))),type='l')
+```
+#Problem 2
+###(a)
+```{r}
+likeli_exp=function(lambda, x){
+  (lambda^length(x))*exp(-lambda*sum(x))
+}
+```
+###(b)
+```{r}
+X.2=rexp(5,2)
+```
+###(c)
+```{r}
+t=seq(0.01,8,by=0.01)
+
+y.2<-sapply(t,function(t){likeli_exp(t,X.2)})
+
+plot(t,y.2,xlab='lambda',ylab='likelihood',type='l',lwd=2)
+l0=t[which.max(y.2)]
+print(l0)
+points(l0,likeli_exp(l0,X.2),lwd=2,col=2)
+```
+###(d)
+```{r}
+plot(t,log(y.2),xlab='lambda',ylab='likelihood',type='l',lwd=2)
+points(l0,log(likeli_exp(l0,X.2)),lwd=2,col=2)
+```
+###(e)
+```{r}
+X.2=matrix(rexp(50,2),nrow=5)
+record_likeli = matrix(NA, nrow=ncol(X.2), ncol=length(t))
+
+for (j in 1:ncol(X.2)){
+  x0<-X.2[,j]
+  record_likeli[j,]<-sapply(t,function(t){likeli_exp(t,x0)})
+}
+
+plot(t,log(record_likeli[1,]),xlab='lambda',ylab='likelihood',type='l',lwd=2,col=1,ylim=c(log(min(record_likeli)),log(max(record_likeli))))
+for(j in 2:10){
+  lines(t,log(record_likeli[j,]),lwd=2,col=j)
+}
+```
+```{r}
+mysize=c(5,20,40,60,80)
+X.2=matrix(rexp(5*80,2),nrow=80)
+record_likeli = matrix(NA, nrow=ncol(X.2), ncol=length(t))
+
+for (j in 1:ncol(X.2)){
+  x0<-X.2[1:mysize[j],j]
+  record_likeli[j,]<-sapply(t,function(t){likeli_exp(t,x0)})
+}
+
+plot(t,log(record_likeli[1,]),xlab='lambda',ylab='likelihood',type='l',lwd=2,col=1,ylim=c(log(min(record_likeli)),log(max(record_likeli))))
+for(j in 2:5){
+  lines(t,log(record_likeli[j,]),lwd=2,col=j)
+}
+```
+#####Comment:
+1. The log likelihoods curves with same sizes and different samples would have the similar shape but a little biased from each other.
+2. The log likelihoods curves with different sample sizes differ much from each other and the curves with larger sample sizes would perform better on estimating lambda with the max-likelihood point.
+
+#Problem 3
+###gamma
+```{r}
+library(ggplot2)
+myCLT_gamma = function(myshape=1,myrate=1,mysize=1,samples=1){
+  mydf = data.frame(s1=rep(NA,mysize))
+  
+  for(j in 1:samples){
+    mydf[,j] = (rgamma(mysize, myshape, myrate))
+  }
+  
+  meandf <- apply(mydf, FUN = mean, MARGIN=1)
+  
+  colnames(meandf)<-NULL
+  meandf2<-data.frame((meandf))
+  
+  return(ggplot(meandf2, aes(X.meandf.)) +
+    geom_histogram(aes(y=..density..),
+                   binwidth=0.2,
+                   colour='black',fill='white')+
+    geom_density(alpha=0.2,fill="#FF6666"))
+}
+
+plot1 = myCLT_gamma(1,2,10,30)
+plot2 = myCLT_gamma(1,2,10,1000)
+plot3 = myCLT_gamma(1,2,100,30)
+plot4 = myCLT_gamma(1,2,100,50)
+plot5 = myCLT_gamma(1,2,1000,30)
+plot6 = myCLT_gamma(1,2,1000,50)
+plot7 = myCLT_gamma(1,2,10000,30)
+plot8 = myCLT_gamma(1,2,10000,50)
+
+require(gridExtra)
+
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,plot7,plot8,ncol=2,nrow=4)
+```
+
+###beta
+```{r}
+myCLT_beta = function(myshape1=1,myshape2=1,mysize=1,samples=1){
+  mydf = data.frame(s1=rep(NA,mysize))
+  
+  for(j in 1:samples){
+    mydf[,j] = (rbeta(mysize, myshape1, myshape2))
+  }
+  
+  meandf <- apply(mydf, FUN = mean, MARGIN=1)
+  
+  colnames(meandf)<-NULL
+  meandf2<-data.frame((meandf))
+  
+  return(ggplot(meandf2, aes(X.meandf.)) +
+    geom_histogram(aes(y=..density..),
+                   binwidth=0.2,
+                   colour='black',fill='white')+
+    geom_density(alpha=0.2,fill="#FF6666"))
+}
+
+plot1 = myCLT_beta(2,3,10,30)
+plot2 = myCLT_beta(2,3,10,1000)
+plot3 = myCLT_beta(2,3,100,30)
+plot4 = myCLT_beta(2,3,100,50)
+plot5 = myCLT_beta(2,3,1000,30)
+plot6 = myCLT_beta(2,3,1000,50)
+plot7 = myCLT_beta(2,3,10000,30)
+plot8 = myCLT_beta(2,3,10000,50)
+
+require(gridExtra)
+
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,plot7,plot8,ncol=2,nrow=4)
+```
+
+###uniform
+```{r}
+myCLT_unif = function(mymin=0,mymax=1,mysize=1,samples=1){
+  mydf = data.frame(s1=rep(NA,mysize))
+  
+  for(j in 1:samples){
+    mydf[,j] = (runif(mysize, mymin, mymax))
+  }
+  
+  meandf <- apply(mydf, FUN = mean, MARGIN=1)
+  
+  colnames(meandf)<-NULL
+  meandf2<-data.frame((meandf))
+  
+  return(ggplot(meandf2, aes(X.meandf.)) +
+    geom_histogram(aes(y=..density..),
+                   binwidth=0.2,
+                   colour='black',fill='white')+
+    geom_density(alpha=0.2,fill="#FF6666"))
+}
+
+plot1 = myCLT_unif(0,1,10,30)
+plot2 = myCLT_unif(0,1,10,1000)
+plot3 = myCLT_unif(0,1,100,30)
+plot4 = myCLT_unif(0,1,100,50)
+plot5 = myCLT_unif(0,1,1000,30)
+plot6 = myCLT_unif(0,1,1000,50)
+plot7 = myCLT_unif(0,1,10000,30)
+plot8 = myCLT_unif(0,1,10000,50)
+
+require(gridExtra)
+
+grid.arrange(plot1,plot2,plot3,plot4,plot5,plot6,plot7,plot8,ncol=2,nrow=4)
+```

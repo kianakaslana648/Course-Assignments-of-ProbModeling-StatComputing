@@ -1,0 +1,114 @@
+#Problem 1
+```{r}
+library(rstudioapi)
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+bdesh<-read.csv('Bangladesh.csv')
+head(bdesh)
+```
+#(a)
+```{r}
+boxplot(bdesh$Cobalt)
+```
+Comment: There are so many outliers if no transformation is made. I think the right transformation can explain the data better.
+
+#(b)
+```{r}
+log_Cobalt=log(bdesh$Cobalt)
+boxplot(log_Cobalt)
+```
+Comment: There are less outliers after the transformation.
+#(c)
+```{r}
+log_Cobalt=log_Cobalt[!is.na(log_Cobalt)]
+n=100
+N=10000
+rec_mean=numeric(N)
+for (i in 1:N){
+  res<-sample(log_Cobalt,n,replace=TRUE)
+  rec_mean[i]<-mean(res)
+}
+hist(rec_mean, main='Bootstrap distribution of mean',col='blue')
+abline(v=mean(rec_mean),col='red',lty=2)
+```
+#(d)
+```{r}
+bias=mean(rec_mean)-mean(log_Cobalt)
+bias
+```
+#(e)
+```{r}
+sd(rec_mean)
+MSE=var(rec_mean)+bias^2
+MSE
+```
+Comment: We can make estimations for error(MSE) through the bootstrap method. In this example, the variance plays the important role in the MSE.
+
+#(f)
+```{r}
+log10_Cobalt=log10(bdesh$Cobalt[!is.na(bdesh$Cobalt)])
+n=100
+N=10000
+rec_mean=numeric(N)
+for (i in 1:N){
+  res<-sample(log10_Cobalt,n,replace=TRUE)
+  rec_mean[i]<-mean(res)
+}
+bias=mean(rec_mean)-mean(log10_Cobalt)
+bias
+sd(rec_mean)
+MSE=var(rec_mean)+bias^2
+MSE
+quantile(rec_mean, c(0.025,0.975))
+```
+Comment: The right choice of a transformation is important. It can reduce bias as well as sd efficiently.
+
+#(g)
+```{r}
+actual=bdesh$Cobalt[!is.na(bdesh$Cobalt)]
+rec_mean=numeric(N)
+for (i in 1:N){
+  res<-sample(actual,n,replace=TRUE)
+  rec_mean[i]<-mean(res)
+}
+hist(rec_mean, main='Bootstrap distribution of mean',col='blue')
+abline(v=mean(rec_mean),col='red',lty=2)
+mean(rec_mean)
+sd(rec_mean)
+bias=mean(rec_mean)-mean(actual)
+bias
+
+```
+Comment: It performs worse than the log10 transformation. So sometimes transformation for the data is necessary.
+
+#Problem 2
+```{r}
+Titanic=read.csv('Titanic.csv', stringsAsFactors = FALSE)
+head(Titanic)
+```
+#(a)
+```{r}
+age_sur=Titanic[Titanic$Survived==1,'Age']
+age_vic=Titanic[Titanic$Survived==0,'Age']
+```
+#(b)
+```{r}
+n=100
+N=100000
+dif=numeric(N)
+for (i in 1:N){
+  sam_sur=sample(age_sur, n, replace=TRUE)
+  sam_vic=sample(age_vic, n, replace=TRUE)
+  dif[i]=mean(sam_sur)-mean(sam_vic)
+}
+
+```
+#(c)
+```{r}
+quantile(dif, c(0.05,0.95))
+```
+Comment: The null hypothesis doesn't hold. There is difference in age between the survivors and the victims. The survivors are younger on average.
+#(d)
+```{r}
+quantile(dif, c(0.025,0.975))
+```
+Comment: The null hypothesis doesn't hold. There is difference in age between the survivors and the victims. The survivors are younger on average.

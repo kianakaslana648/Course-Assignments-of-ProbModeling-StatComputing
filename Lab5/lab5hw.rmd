@@ -1,0 +1,93 @@
+#Problem 1
+```{r Problem 1-(i)}
+Roulette_plot<-function(p,X0,N){
+  myCash = c(X0, rep(0,N)) # vector for my cash
+  spins <- rbinom(N,1,p) # simulate N spins
+  counter = 1 # keep track of number of games
+  lastspin = 1 # initialize memory of last games
+  myBet = 1
+  while(myCash[counter] > 0 & counter <= N){#this goes on until I loose all my money or reaches the maximal myBet <- min(c(2*myBet,myCash[counter]))
+  if(lastspin == 1){myBet <- 1}
+  myCash[counter + 1] <- myCash[counter] + (2*spins[counter] - 1)*myBet
+  lastspin <- spins[counter]
+  counter <- counter + 1
+  }
+  plot(myCash, type = 'l') # plot of my cash
+  abline(a = X0, b = -1/19, col = 2) # plot expected trend
+}
+Roulette_plot(18/38,100,500)
+Roulette_plot(18/38,500,500)
+Roulette_plot(18/38,1000,500)
+```
+If the initial amount is larger, the more likely we have larger bias from the expected line.
+
+```{r Problem 1-(ii)}
+Peter_plot<-function(p,maxBet,X0,N){
+  myCash = c(X0, rep(0,N)) # vector for my cash
+  spins <- rbinom(N,1,p) # simulate N spins
+  counter = 1 # keep track of number of games
+  lastspin = 1 # initialize memory of last games
+  myBet = 1
+  while(myCash[counter] > 0 & counter <= N){
+  myBet <- min(c(2*myBet,myCash[counter], maxBet))
+  if(lastspin == 1){myBet <- 1}
+  myCash[counter + 1] <- myCash[counter] + (2*spins[counter] - 1)*myBet
+  lastspin <- spins[counter]
+  counter <- counter + 1
+  }
+  plot(myCash, type = 'l') # plot of my cash
+  abline(a = X0, b = -1/19, col = 2) # plot expected trend
+}
+Peter_plot(18/38,20,100,1000)
+Peter_plot(18/38,60,100,1000)
+Peter_plot(18/38,100,100,1000)
+Peter_plot(18/38,140,100,1000)
+
+Peter_plot(18/38,20,100,600)
+Peter_plot(18/38,10,100,600)
+```
+The larger the max number of spins we have, the more likely mycash reduces to 0(Has a more detailed picture of the whole process)
+Within certain range, the larger maxbet we have, the less likely mycash reduces to 0(Longer process). But with mybet above certain value, mycash reduces to 0 rapidly.
+
+#Problem 2
+```{r Problem 2-(a)}
+P <- matrix(0, ncol = 9, nrow = 9)
+diag(P) <- 1/2
+P[1,2] <- P[1,4] <- 1/4
+P[2,1] <- P[2,3] <- P[2,5] <- 1/6
+P[3,2] <- P[3,6] <- 1/4
+P[4,1] <- P[4,5] <- P[4,7] <- 1/6
+P[5,2] <- P[5,4] <- P[5,6] <- 1/6
+P[6,3] <- P[6,5] <- 1/4
+P[7,4] <- P[7,8] <- 1/4
+P[8,7] <- P[8,9] <- 1/4
+P[9,9] <- 1
+
+cave_simulate<-function(steps,sample_n){
+  states = rep(1,sample_n)
+  for (j in 1:steps){
+    for(k in 1:sample_n){
+      states[k] <- sample(9,1,prob = P[states[k],])
+    }
+  }
+  return(states)
+}
+
+results = cave_simulate(3,100000)
+mean(results==3)
+(P%*%P%*%P)[1,3]
+```
+The probability of the caveman being at position 3 at time 3 given the initial position 1.
+
+```{r Problem 2-(b)}
+step=1
+P_result=P
+while(1){
+  step=step+1
+  P_result=P_result%*%P
+  max_prob=min(P_result[1:9,9])
+  if(max_prob>=0.75)
+    break
+}
+step
+```

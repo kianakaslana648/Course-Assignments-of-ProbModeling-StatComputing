@@ -1,0 +1,96 @@
+#Problem 1
+
+```{r Problem 1-(a)}
+x <- 0:50
+plot(x,dbinom(x,size=50,prob=0.33),type='h')
+```
+
+```{r Problem 1-(b)}
+##I cannot use the function of ddunif()
+my_ddunif<-function(x,min,max){
+  return(ifelse(x>=min&x<=max,1/(max-min+1),0))
+}
+x<--5:55
+plot(x,my_ddunif(x,0,50),type='h')
+```
+
+```{r Problem 1-(c)}
+x=0:1
+plot(x,dbinom(x,size=1,prob=0.3),type='h')
+```
+
+```{r Problem 1-(d)}
+x=0:50
+plot(x,dpois(x,lambda=10),type='h')
+```
+
+
+```{r Problem 1-(e)}
+x=1:50
+plot(x,dgeom(x,prob=0.3),type='h')
+```
+
+```{r problem 1-(f)}
+x=0:50
+plot(x,dhyper(x,60,20,20),type='h')
+```
+
+```{r problem 1-(g)}
+x=1:50
+plot(x,dnbinom(x,10,0.6),type='h')
+```
+
+#Problem 2
+
+```{r problem 2-(a)}
+cat(dbinom(4,15,0.25),pbinom(4,15,0.25)-pbinom(3,15,0.25))
+```
+
+```{r problem 2-(b)}
+s=0
+for(i in 0:4){
+  s=s+dbinom(i,15,0.25)
+}
+cat(s)
+```
+
+```{r problem 2-(c)}
+pbinom(4,15,0.25)
+```
+
+#Problem 3
+```{r problem 3-(a)}
+lambda=3/7*30
+p=ppois(11,lambda)
+cat(p)
+```
+
+```{r problem 3-(b)}
+lambda=0.25
+p=1-dpois(0,lambda)
+cat(p)
+```
+
+#Problem 4
+```{r problem 4-1}
+cat(dnbinom(6,3,0.5))
+```
+
+```{r problem 4-2}
+x=rnbinom(10000,3,0.5)
+cat(sum(as.numeric(x==6))/length(x))
+```
+
+```{r problem 4-3-(a)}
+p1=1-sum(dnbinom(0:5,3,0.5))
+p2=1-pnbinom(5,3,0.5)
+cat(p1,p2)
+```
+
+```{r problem 4-3-(b)}
+x=rnbinom(10000,3,0.5)
+cat(sum(as.numeric(x>=6))/length(x))
+```
+
+{r problem 4-3-(c)}
+They are almost the same.

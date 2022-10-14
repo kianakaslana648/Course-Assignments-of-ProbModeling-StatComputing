@@ -1,0 +1,100 @@
+#Problem
+#(a)
+```{r}
+gss<-read.csv('gss2002.csv')
+table_new=with(gss,table(Religion,DeathPenalty))
+table_new
+```
+#(b)
+```{r}
+gss_two=gss[c('Religion','DeathPenalty')]
+gss_cleaned=gss_two[complete.cases(gss_two),]
+table_cleaned=with(gss_cleaned,table(Religion,DeathPenalty))
+```
+#(c)
+```{r}
+table=table_cleaned
+my_chisq_test<-function(table){
+  n=dim(table)[1]
+  m=dim(table)[2]
+  N=sum(table)
+  table_expected=table
+  for(i in 1:n){
+    for(j in 1:m){
+      table_expected[i,j]=sum(table[i,])*sum(table[,j])/N
+    }
+  }
+  stat=sum((table-table_expected)^2/table_expected)
+  pvalue=pchisq(stat,df=(n-1)*(m-1),lower.tail=FALSE)
+  return(pvalue)
+}
+my_chisq_test(table_cleaned)
+```
+Comment: We cannot assert that religion is not independent of death penalty.
+#(d)
+```{r}
+permutation<-function(table){
+  n=dim(table)[1]
+  mylist<-c(table[,1],table[,2])
+  testlist<-mylist[sample(2*n,2*n,replace=F)]
+  return(mean(testlist[1:n]-testlist[(n+1):(2*n)]))
+}
+```
+
+#(e)
+```{r}
+N=10000
+test=replicate(N,permutation(table_cleaned))
+observed=mean(table_cleaned[,1]-table_cleaned[,2])
+hist(test)
+abline(v=observed,col=2,lwd=2)
+```
+#(f)
+```{r}
+mean(test>observed)
+```
+Comment: We cannot assert that religion and view on Death Penalty are not independent.
+
+#(f)-extra
+```{r}
+chisq.test(table_cleaned)
+```
+Comment: Yeah, the same conclusion.
+
+#Problem 2
+```{r}
+Verizon<-read.csv('Verizon.csv')
+head(Verizon)
+```
+
+#(a)
+```{r}
+dif<-function(df){
+  table_mean=aggregate(Time~Group,data=df,FUN=mean)
+  return(table_mean[1,2]-table_mean[2,2])
+}
+
+dif(Verizon)
+```
+#(b)
+```{r}
+permute<-function(df){
+  n=dim(df)[1]
+  df_copy=df
+  df_copy$Group=df$Group[sample(n,n,replace=F)]
+  return(dif(df_copy))
+}
+permute(Verizon)
+```
+#(c)
+```{r}
+N=1000
+test=replicate(N,permute(Verizon))
+hist(test)
+abline(v=dif(Verizon),col=2,lwd=2)
+```
+#(d)
+```{r}
+mean(test>dif(Verizon))
+```
+Comment: We can assert that the times of CLEC are larger than that of ILEC.

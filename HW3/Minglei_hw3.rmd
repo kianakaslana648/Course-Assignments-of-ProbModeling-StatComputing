@@ -1,0 +1,109 @@
+#Problem 1
+Not true
+say we have a 3x3 matrix with 1 to 9 labeled in row-major order. Then P(X_{i+1}=1|X_{i}=2) = 1/3 while P(X_{i}=2|X_{i+1}=1)=1/2. The main problem is that the tiles are in situations of 3 different kinds: corners, situations against the wall except the corners, situations not against the wall. If we pick up two adjacent tiles of two kinds mentioned above, the two conditional probability fractions are different. And if the picked two are in the same kind, the two fractions are the same.
+So the statement is true only when n=1,2 because the matrix of 1x1 or 2x2 only has one kind of tiles.
+And the statement is not true when n>=3.
+
+#Problem 2
+```{r Problem 2-(a)}
+X=rbinom(100000,80,0.2)
+Y=rbinom(100000,100,0.7)
+Z=X+Y
+sum(X<12)/sum(X<18)
+mean(X[X<18])
+```
+
+```{r Problem 2-(b)}
+X_b=X[X>=12&X<=20]
+plot.ecdf(X_b)
+```
+
+```{r Problem 2-(c)}
+X_c = X[Z==90]
+plot.ecdf(X_c)
+```
+
+```{r Problem 2-(d)}
+mean(Z[X==10])
+mean(Z[X==15])
+mean(Z[X==20])
+```
+
+```{r Problem 2-(e)}
+mean(X[Z==80])
+mean(X[Z==90])
+mean(X[Z==100])
+```
+
+#Problem 3
+```{r Problem 3-(a)}
+X = rexp(100000,1)
+hist(X,breaks=80,prob=T,xlim=c(0,8))
+```
+
+```{r Problem 3-(b)}
+Y_b=rpois(100000,1.5)
+hist(Y_b,breaks=10,prob=T,xlim=c(0,10))
+```
+
+```{r Problem 3-(c)}
+X_c=rexp(100000,1)
+Y_c=rpois(100000,X_c)
+hist(Y_c,breaks=15,prob=T,xlim=c(0,15))
+```
+
+```{r Problem 3-(d)}
+X_d=rexp(100000,1)
+Y_d=rpois(100000,X_d)
+X_con=X_d[Y_d==2]
+hist(X_con,breaks=60,prob=T)
+```
+
+#Problem 4
+Z is similar to but exactly not a normal distribution. Mean and Std are listed in the result of codes.
+```{r Problem 4}
+library(nortest)
+X=rnorm(1000000,0,1)
+Y=rnorm(1000000,0,1)
+Z=Y[(X+Y)>=1]
+length(Z)
+hist(Z,breaks=100,prob=T)
+ks.test(Z,'pnorm',0.91,0.78)
+ad.test(Z)
+mean(Z)
+sd(Z)
+```
+
+
+#Problem 5
+(1)
+E(Y|X=1)=mu_1
+E(Y|X=2)=mu_2
+E(Y)=E(E(Y|X))=w_1 E(Y|X=1)+w_2 E(Y|X=2)=w_1 mu_1 + w_2 mu_2
+
+(4)
+```{r Problem 5-(4)}
+Y_1 = rnorm(10000,-2,1)
+Y_2 = rnorm(10000,2,sqrt(2))
+w_1=1/3
+w_2=2/3
+X=rbinom(10000,1,1/3)
+Y=X * Y_1 + (1-X) * Y_2
+hist(Y,breaks=100,prob=T)
+```
+
+#Bonus
+If result of roulette lies in {2,4,6,8,10,11,13,15,17}, the result is black and even, then Bob earns $3.
+
+If result of roulette lies in {1,3,5,7,9,12,14,16,18}, the result is even but not black, then Bob earns $1.
+
+If result of roulette lies in {20,22,24,26,28,29,31,33,35}, the result is black but not even, then Bob loses $1.
+
+If result of roulette lies in {0,00,19,21,23,25,27,30,32,34,36}, the result is both black and even, then Bob earns $3.
+
+We mark X as the revenue of one bet.
+P(X)=9/38 (X=3)
+P(X)=11/38 (X=-3)
+P(X)=9/38 (X=-1)
+P(X)=9/38 (X=1)
+E(X)=-3/19

@@ -1,0 +1,178 @@
+#Problem 1
+Throwing Dice as Multinomial Distribution
+
+###Rolling a die N=100 times
+
+#####creates the function to roll a die for one time
+```{r}
+one.dice <- function(){
+  dice <- sample(1:6, size = 1, replace = TRUE)
+  return(dice)
+}
+
+one.dice()
+```
+#####repeat 4 times the process of rolling a die for 100 times as well as computing the frequencies of each value. Then create the frequency plot in a 2x2 form.
+```{r}
+par(mfrow=c(2,2))
+
+for (i in 1:4){
+sims <- replicate(100, one.dice())
+table(sims)
+table(sims)/length(sims)
+plot(table(sims), xlab = 'Event', ylab = 'Frequency')
+}
+```
+
+###Rolling a die N=10000 times
+#####repeat what is done above with a much larger N=10000
+```{r}
+par(mfrow=c(2,2))
+
+for (i in 1:4){
+sims <- replicate(10000, one.dice())
+table(sims)
+table(sims)/length(sims)
+plot(table(sims), xlab = 'Event', ylab = 'Frequency')
+}
+```
+
+Comments:
+1. When we roll a die with a bigger value of N, we have results that is closer to the distribution. That's the law of large numbers.
+2. We can also use the function of rmultinomial to do the simulation directly without repeating the rolling function.
+
+#Problem2
+###(a)
+```{r}
+mysample=rmultinom(100000, size=3, prob=c(3/5,1/5,1/5))
+mean(mysample[1,]==1&mysample[2,]==2)
+dmultinom(c(1,2,0),prob=c(3/5,1/5,1/5))
+```
+###(b)
+```{r}
+x1_dist=table(mysample[1,])/length(mysample[1,])
+plot(x1_dist,xlab='count',ylab='Probability')
+```
+
+#Problem3
+```{r}
+library(tidyverse)
+library(mvtnorm)
+library(plotly)
+library(MASS)
+library(ggplot2)
+```
+
+#Simulate multivariate normal data
+
+#####creates the covariance matrix
+```{r}
+sigma <- matrix(c(4,2,2,3), ncol = 2)
+sigma
+```
+#####generates the samples
+```{r}
+means <- c(0, 0)
+n <- 1000
+
+set.seed(42)
+x <- rmvnorm(n = n, mean = means, sigma = sigma)
+str(x)
+```
+
+```{r}
+d <- data.frame(x)
+names(d)
+```
+
+#Plotting
+
+###Plotting univariate (sampled) normal data
+```{r}
+d %>% 
+  ggplot(aes(x = X1)) +
+  geom_density()
+```
+Observation: The distribution of data seems to be kind of close to a normal distribution.
+
+###Plot theoretic normal curve
+```{r}
+p1 <- data_frame(x = -3:3) %>% 
+  ggplot(aes(x = x)) +
+  stat_function(fun = dnorm, n = n)
+p1
+```
+Observation: The normal distribution plot has a standard symmetric and smooth curve.
+
+###Plotting multivariate data
+
+#####2D density
+```{r}
+p2 <- ggplot(d, aes(x = X1, y = X2)) +
+  geom_point(alpha = .5) +
+  geom_density_2d()
+p2
+```
+Observation: We can kind of get brief information about which part is dense and which part is sparse from the contour curve in 2D-density plot.
+
+#####Geom binhex
+
+```{r}
+p3 <- ggplot(d, aes(x = X1, y = X2)) +
+  geom_point(alpha = .5) +
+  geom_bin2d() +
+  scale_fill_viridis_c()
+
+p3
+```
+Observation: The 2d-bin plot uses the color to describe the density of the points.
+ 
+#####2D histogram (heatmap) with plotly
+```{r}
+(p <- plot_ly(d, x = ~X1, y = ~X2))
+```
+Observation: That's a basic 2D scatter plot.
+
+```{r}
+add_histogram2d(p)
+```
+Observation: The 2d-histogram plot is kind of like the 2d-bin plot, but with a full domain.
+
+#####2D contour with plotly
+```{r}
+add_histogram2dcontour(p)
+```
+Observation: The contour plot uses different colors to describe the density of the points.
+
+###3D plot
+
+#####Surface
+
+```{r}
+dens <- kde2d(d$X1, d$X2)
+
+plot_ly(x = dens$x,
+        y = dens$y,
+        z = dens$z) %>% add_surface()
+```
+Observation: We first generate values of density on a meshgrid and simply add a smooth surface to it.
+
+#####3D Scatter
+```{r}
+d$dens <- dmvnorm(x = d)
+```
+
+```{r}
+p4 <- plot_ly(d, x = ~ X1, y = ~ X2, z = ~ dens,
+              marker = list(color = ~ dens,
+                            showscale = TRUE)) %>% 
+  add_markers()
+
+p4
+```
+Observation: 3D-scatter plot has the density value being the z-axis value of original x,y-axis. 
+
+
+Comments:(Observations for each plot is just attached under that plot)
+1. When we use plot_ly to create 3D plots, we need to first convert the original data into density values on a 2D-meshgrid.
+2. We can briefly get information about the density distribution from the contour curves in the 2D-density plot.
